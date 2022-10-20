@@ -1,163 +1,70 @@
 <?php
 
-
 namespace app\models;
-
-
-use yii\helpers\VarDumper;
 
 class Determinant
 {
-    private $detElements;
-    /**
-     * @var ElementStruct[]
-     */
-    private $_sortedElements = null;
+    private $elements;
+    private $matrixSort;
 
     /**
-     * Determinant constructor.
-     * @param ElementStruct[] $matrixElements
+     * @param ElementStruct[] $elements
      */
-    public function __construct(array $matrixElements)
+    public function __construct(array $elements)
     {
-        $this->detElements = $matrixElements;
+        $this->elements = $elements;
+        $this->matrixSort = new MatrixSort($elements);
     }
 
     /**
-     * @return float -
+     * @return float - значение определителя
      */
     public function value(): float
     {
+        if ($this->degree() == 1) {
+            return $this->sortedElements()[0]->value();
+        }
         $sum = 0;
-        if ($this->order() == 2) {
-            foreach ($this->detElements as $elementNum => $element) {
-                $sum = $sum + $this->koef($elementNum) * $element->value();
+        if ($this->degree() == 2) {
+            foreach ($this->sortedElements() as $elemNum => $element) {
+                $sum = $sum + $this->koef($elemNum)*$element->value();
             }
             return $sum;
         }
-
-        $firstRow = $this->detElements[0]->rowNum();
-        foreach ($this->detElements as $elementNum => $element) {
-            if ($element->rowNum() != $firstRow) {
+        $firstElem = $this->sortedElements()[0];
+        foreach ($this->sortedElements() as $elemNum => $element){
+            if($element != $firstElem){
                 continue;
             }
-            $minor = new Determinant(
-                $this->notCrossedElements(
-                    $element
-                )
-            );
-
-            $sum = $this->koef($elementNum) * $element->value() * $minor->value() + $sum;
+            $minor = new Minor($this->sortedElements(), $element);
+            $sum = $sum + $this->koef($elemNum) * $minor->value() * $element->value(); //знаки не расставлены
         }
         return $sum;
     }
 
-    public function order(): int
-    {
-        return $this->lastColumn();
-    }
-
-    public function addElement(ElementStruct $element): self
-    {
-        $this->detElements[] = $element;
-        return $this;
-    }
-
     /**
-     * @param ElementStruct[] $elements
-     * @return Determinant[]
+     * Определяет прядок определителя
+     * @return int
      */
-    public function friggingMinors(array $elements): array
+    public function degree(): int
     {
-        $minors = [];
-        /**@var ElementStruct[] $crossedElements */
-        $crossedElements = [];
-        /**@var ElementStruct[] $notCrossedElements */
-        $notCrossedElements = [];
-        foreach ($elements as $element) {
-            if ($element->columnNum() >= $this->firstColumnNum() and
-                $element->columnNum() <= $this->lastColumn()
-            ) {
-                $crossedElements[] = $element;
-                continue;
-            }
-            if (
-                $element->rowNum() >= $this->firstRowNum() and
-                $element->rowNum() <= $this->lastRowNum()
-            ) {
-                $crossedElements[] = $element;
-                continue;
-            }
-            $notCrossedElements[] = $element;
-        }
-        foreach ($notCrossedElements as $notCrossedElement) {
-            $minor = new Determinant(array_merge($this->detElements,[$notCrossedElement]));
-            foreach ($crossedElements as $crossedElement) {
-                if (
-                    $crossedElement->rowNum() == $notCrossedElement->rowNum() or
-                    $crossedElement->columnNum() == $notCrossedElement->columnNum()
-                ) {
-                    $minor->addElement($crossedElement);
-                }
-                if ($minor->order() + 1 == $this->order()) {
-                    break;
-                }
-            }
-            $minors[] = $minor;
-        }
-        return $minors;
-    }
-
-    private function lastRowNum(): int
-    {
-        $elements = $this->detElements;
-        return end($elements)->rowNum();
-    }
-
-    private function lastColumn(): int
-    {
-        $elements = $this->detElements;
-        return end($elements)->columnNum();
-    }
-
-    private function firstRowNum(): int
-    {
-        $elements = $this->detElements;
-        return array_shift($elements)->rowNum();
-    }
-
-    private function firstColumnNum(): int
-    {
-        $elements = $this->detElements;
-        return array_shift($elements)->columnNum();
-    }
-
-    /**
-     * @param ElementStruct $element
-     * @return ElementStruct[]
-     */
-    private function notCrossedElements(ElementStruct $element): array
-    {
-        return array_filter(
-            $this->detElements,
-            function (ElementStruct $elementStruct) use ($element) {
-                if ($element->columnNum() == $elementStruct->columnNum()) {
-                    return false;
-                }
-                if ($element->rowNum() == $elementStruct->rowNum()) {
-                    return false;
-                }
-                return true;
-            }
+        return sqrt(
+            count($this->elements)
         );
     }
 
-    private function koef(int $elementNum): int
+    /**
+     * @return ElementStruct[] - сортированные по индексам элементы
+     */
+    private function sortedElements()
     {
-        $koef = 1;
-        if ($elementNum % 2 == 0) {
-            $koef = -1;
+        return $this->matrixSort->ascIndex();
+    }
+
+    private function koef(int $elementNum): int{
+        if ($elementNum % 2 == 0){
+            return 1;
         }
-        return $koef;
+        return -1;
     }
 }

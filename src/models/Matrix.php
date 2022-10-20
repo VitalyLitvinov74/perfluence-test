@@ -1,30 +1,24 @@
 <?php
 
-
 namespace app\models;
-
-
-use yii\helpers\VarDumper;
 
 class Matrix
 {
     private $elements;
 
-//    private $_elements = null;
-
-    public static function fromArray(array $matrix): self
+    public static function fromRows(array $rows): self
     {
         $elements = [];
-        foreach ($matrix as $rowNum=>$row){
-            foreach ($row as $colNum=>$column){
-                $elements[] = new ElementStruct($rowNum+1, $colNum+1, $column);
+        foreach ($rows as $rowNum => $row) {
+            foreach ($row as $colNum => $column) {
+                $elements[] = new ElementStruct($rowNum, $colNum, $column);
             }
         }
         return new self($elements);
     }
 
+
     /**
-     * Matrix constructor.
      * @param ElementStruct[] $elements
      */
     public function __construct(array $elements)
@@ -32,50 +26,33 @@ class Matrix
         $this->elements = $elements;
     }
 
-    public function rank(): int
+    public function rang()
     {
-        $rank = 0;
-        $elements = $this->elements;
-        foreach ($elements as $element){
-            if($element->value() != 0){
-                $minor = new Determinant([$element]);
-                $rank = 1;
-                break;
-            }
+        $firstElem = $this->firstElemForRang();
+        if ($firstElem->value() == 0) {
+            return 0;
         }
-        if($rank == 0){
-            return $rank;
-        }
-
+        $friggingMinors = new FriggingMinors($this->elements, [$firstElem]);
         while (true) {
-            $friggingsMinors = $minor->friggingMinors(
-                $this->elements
-            );
-            $allNullableFriggingMinors = true;
-            foreach ($friggingsMinors as $friggingMinor) {
-                if ($friggingMinor->value() > 0) {
-
-                    $minor = $friggingMinor;
-                    $allNullableFriggingMinors = false;
+            foreach ($friggingMinors->list() as $friggingMinor){
+                if($friggingMinor->value() != 0){
+                    $friggingMinorElements = $friggingMinors->elementsByMinor($friggingMinor);
+                    $friggingMinors = new FriggingMinors(
+                        $this->elements,
+                        $friggingMinorElements
+                    );
                     break;
                 }
             }
-            if ($allNullableFriggingMinors
-                or $minor->order() == $this->minDimension()) {
-                $rank = $minor->order();
-                break;
-            }
         }
-        return $rank;
+
     }
 
-    public function minDimension(): int
+    /**
+     * @return ElementStruct - не нулевой элемент матрицы, если такого нет то вернут нулевой эелмент
+     */
+    private function firstElemForRang(): ElementStruct
     {
-        $elements = $this->elements;
-        $endElement = end($elements);
-        return
-            $endElement->rowNum() < $endElement->columnNum()
-                ? $endElement->rowNum()
-                : $endElement->columnNum();
+
     }
 }
