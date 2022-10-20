@@ -2,10 +2,26 @@
 
 namespace app\models;
 
+use yii\helpers\VarDumper;
+
 class Determinant
 {
     private $elements;
     private $matrixSort;
+
+    public static function fromArray(array $rows): self{
+        $elements = [];
+        foreach ($rows as $rowNum=>$row){
+            foreach ($row as $columnNum=>$column){
+                $elements[] = new ElementStruct(
+                    $rowNum,
+                    $columnNum,
+                    $column
+                );
+            }
+        }
+        return new self($elements);
+    }
 
     /**
      * @param ElementStruct[] $elements
@@ -26,18 +42,27 @@ class Determinant
         }
         $sum = 0;
         if ($this->degree() == 2) {
-            foreach ($this->sortedElements() as $elemNum => $element) {
-                $sum = $sum + $this->koef($elemNum)*$element->value();
+            $multiple2 = 1;
+            $multiple1 = 1;
+            foreach ($this->sortedElements() as $elemNum=>$element) {
+                if($elemNum == 0 or $elemNum == 3){
+                    $multiple1 = $multiple1 * $element->value();
+                }else{
+                    $multiple2 = $multiple2 * $element->value();
+                }
+
             }
+            $sum = $multiple1 - $multiple2;
             return $sum;
         }
         $firstElem = $this->sortedElements()[0];
-        foreach ($this->sortedElements() as $elemNum => $element){
+        foreach ($this->sortedElements() as $element){
             if($element != $firstElem){
                 continue;
             }
             $minor = new Minor($this->sortedElements(), $element);
-            $sum = $sum + $this->koef($elemNum) * $minor->value() * $element->value(); //знаки не расставлены
+            //TODO:: расписать знаки
+            $sum = $sum +  $minor->value() * $element->value();
         }
         return $sum;
     }
@@ -61,10 +86,7 @@ class Determinant
         return $this->matrixSort->ascIndex();
     }
 
-    private function koef(int $elementNum): int{
-        if ($elementNum % 2 == 0){
-            return 1;
-        }
-        return -1;
+    private function koef(ElementStruct $elementNum): int{
+        return pow(-1, $elementNum->rowNum() + $elementNum->columnNum());
     }
 }

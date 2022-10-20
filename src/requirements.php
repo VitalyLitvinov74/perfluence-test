@@ -129,14 +129,14 @@ $requirements = array(
         'mandatory' => false,
         'condition' => $requirementsChecker->checkPhpIniOff("expose_php"),
         'by' => 'Security reasons',
-        'memo' => '"expose_php" should be disabled at php.ini',
+        'memo' => '"expose_php" should be disabled at xdebug.ini',
     ),
     'phpAllowUrlInclude' => array(
         'name' => 'PHP allow url include',
         'mandatory' => false,
         'condition' => $requirementsChecker->checkPhpIniOff("allow_url_include"),
         'by' => 'Security reasons',
-        'memo' => '"allow_url_include" should be disabled at php.ini',
+        'memo' => '"allow_url_include" should be disabled at xdebug.ini',
     ),
     'phpSmtp' => array(
         'name' => 'PHP mail SMTP',

@@ -29,6 +29,9 @@ class InterseptionElements
         return $this->_crossedElements;
     }
 
+    /**
+     * @return ElementStruct[]
+     */
     public function notCrossedElements(): array
     {
         if(!empty($this->_notCressedElements)){

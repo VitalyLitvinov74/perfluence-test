@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use yii\helpers\VarDumper;
+
 class Minor
 {
     private $inteseptionElements;
