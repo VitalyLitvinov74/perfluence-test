@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-class Matrix
+class Matrix implements IMatrix
 {
     private $elements;
 
@@ -11,7 +11,7 @@ class Matrix
         $elements = [];
         foreach ($rows as $rowNum => $row) {
             foreach ($row as $colNum => $column) {
-                $elements[] = new ElementStruct($rowNum, $colNum, $column);
+                $elements[] = new ElementStruct($rowNum + 1, $colNum + 1, $column);
             }
         }
         return new self($elements);
@@ -46,12 +46,13 @@ class Matrix
                     );
                     $allNullableFriggingMinors = false;
                     break;
-                    //TODO:: разобраться с алгоритмом до конца
                 }
             }
-            if ($allNullableFriggingMinors or
-                $this->minDimension() == $friggingMinor->degree()
-            ) {
+            if ($allNullableFriggingMinors) {
+                $rank = $friggingMinor->degree() - 1;
+                break;
+            }
+            if ($this->minDimension() == $friggingMinor->degree()) {
                 $rank = $friggingMinor->degree();
                 break;
             }

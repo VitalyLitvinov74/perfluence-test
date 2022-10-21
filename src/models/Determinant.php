@@ -14,8 +14,8 @@ class Determinant
         foreach ($rows as $rowNum=>$row){
             foreach ($row as $columnNum=>$column){
                 $elements[] = new ElementStruct(
-                    $rowNum,
-                    $columnNum,
+                    $rowNum+1,
+                    $columnNum+1,
                     $column
                 );
             }
@@ -55,14 +55,13 @@ class Determinant
             $sum = $multiple1 - $multiple2;
             return $sum;
         }
-        $firstElem = $this->sortedElements()[0];
+        $firstRow = $this->sortedElements()[0]->rowNum();
         foreach ($this->sortedElements() as $element){
-            if($element != $firstElem){
+            if($element->rowNum() != $firstRow){
                 continue;
             }
             $minor = new Minor($this->sortedElements(), $element);
-            //TODO:: расписать знаки
-            $sum = $sum +  $minor->value() * $element->value();
+            $sum = $sum + $this->koef($element) * $minor->value() * $element->value();
         }
         return $sum;
     }
@@ -83,10 +82,10 @@ class Determinant
      */
     private function sortedElements()
     {
-        return $this->matrixSort->ascIndex();
+        return $this->matrixSort->reIndex();
     }
 
-    private function koef(ElementStruct $elementNum): int{
-        return pow(-1, $elementNum->rowNum() + $elementNum->columnNum());
+    private function koef(ElementStruct $element): int{
+        return pow(-1, $element->rowNum() + $element->columnNum());
     }
 }

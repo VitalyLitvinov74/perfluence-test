@@ -13,10 +13,10 @@ class SiteController extends Controller
 {
     public function actionMatrixRang()
     {
-        $matrix = Matrix::fromArray(
+        $matrix = Matrix::fromRows(
             Yii::$app->request->post('matrix')
         );
-        return ["rang"=>$matrix->rank()];
+        return ["rang"=>$matrix->rang()];
     }
 
     public function actionUsersByDate(){
