@@ -27,6 +27,20 @@ class FriggingMinors
     public function list(): array
     {
         $minors = [];
+        if(empty ($this->intersectionElements->notCrossedElements())){
+            //добавляем исходные элементы определителя в окаймляющий минор
+            $elementsForMinor = array_merge(
+                $this->inputDeterminantElements, //исходные элемент определителя
+                $this->intersectionElements->crossedElements()
+            );
+            $minor = new Determinant($elementsForMinor);
+            $minors[] = $minor;
+            $this->mappedList[] = [
+                'minor' => $minor,
+                'elements' => $elementsForMinor
+            ];
+            return $minors;
+        }
         foreach ($this->intersectionElements->notCrossedElements() as $notCrossedElement) {
             $elementsForMinor = array_filter(
                 $this->intersectionElements->crossedElements(),

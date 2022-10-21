@@ -2,7 +2,7 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=mysql;dbname=perfluence',
+    'dsn' => 'mysql:host=mysql;dbname=PRLS',
     'username' => 'root',
     'password' => 'root',
     'charset' => 'utf8',

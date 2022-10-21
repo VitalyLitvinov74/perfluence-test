@@ -20,6 +20,9 @@ class InterseptionElements
     }
 
 
+    /**
+     * @return ElementStruct[]
+     */
     public function crossedElements(): array
     {
         if(!empty($this->_crossedElements)){
