@@ -9,7 +9,7 @@ class TimeLine
 
     }
 
-    public function isActive($time){
+    public function isActive($time): bool{
 
     }
 

@@ -30,7 +30,24 @@ class Sessions
             ])
             ->orderBy(['logout_time' => SORT_ASC]);
         $sessions = $query->all();
+        /**@var TimeLine[] $timeLines*/
+        $timeLines = [];
+        $crossedTimeLines = [];
+        foreach ($sessions as $session){
+            foreach ($timeLines as $timeLine){
+                if($timeLine->isActive($session->login_time)){
 
+                }
+                if($timeLine->isActive($session->logout_time)){
+
+                }
+            }
+            $timeLines[] = new TimeLine(
+                $session->user_id,
+                $session->login_time,
+                $session->logout_time
+            );
+        }
 //        /**@var TimeLine[] $timeLines */
 //        $timeLines = [];
 //        foreach ($sessions as $session) {
