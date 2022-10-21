@@ -3,8 +3,9 @@
 namespace app\controllers;
 
 
-use app\models\Determinant;
-use app\models\Matrix;
+use app\models\math\Determinant;
+use app\models\math\Matrix;
+use app\models\Sessions;
 use Yii;
 use yii\helpers\VarDumper;
 use yii\rest\Controller;
@@ -19,8 +20,11 @@ class SiteController extends Controller
         return ["rang"=>$matrix->rang()];
     }
 
-    public function actionUsersByDate(){
-
+    public function actionAttendance(){
+        $sessions = new Sessions(
+            Yii::$app->request->get('day')
+        );
+        return $sessions->maxActivityForDate();
     }
 
     public function actionDeterminant(){

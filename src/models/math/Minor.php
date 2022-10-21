@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models;
+namespace app\models\math;
 
 use yii\helpers\VarDumper;
 
